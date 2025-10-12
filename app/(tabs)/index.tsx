@@ -167,9 +167,10 @@ const MoodChips: React.FC<{
   return (
     <FlatList
       horizontal
-      style={{ paddingVertical: 6 }}
+      style={styles.chipRow}
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
+      contentContainerStyle={{ paddingHorizontal: 16, alignItems: "center" }}
+      ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
       data={[
         { key: "all", label: "For You", icon: "sparkles-outline" as const },
         ...moods,
@@ -197,7 +198,7 @@ const MoodChips: React.FC<{
               style={{ marginRight: 6 }}
             />
             <Text
-              style={{ color: active ? "#fff" : t.text, fontWeight: "600" }}
+              style={[styles.chipText, { color: active ? "#fff" : t.text }]}
             >
               {item.label}
             </Text>
@@ -333,6 +334,9 @@ const DetailsModal: React.FC<{
           style={[
             styles.modalCard,
             {
+              // RN 0.75+ warning fix: move pointerEvents into style
+              // If TS complains, add: // @ts-expect-error RN style pointerEvents
+              pointerEvents: "auto",
               transform: [
                 {
                   translateY: slide.interpolate({
@@ -353,6 +357,7 @@ const DetailsModal: React.FC<{
           <Text style={[styles.modalArtist, { color: t.subtext }]}>
             {track.artist} • {track.mood}
           </Text>
+
           <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
             <Pressable
               onPress={onPlay}
@@ -361,10 +366,12 @@ const DetailsModal: React.FC<{
                 { backgroundColor: t.tint },
                 pressed && { opacity: 0.9 },
               ]}
+              accessibilityLabel="Play"
             >
               <Ionicons name="play" size={18} color="#fff" />
               <Text style={styles.primaryBtnText}>Play</Text>
             </Pressable>
+
             <Pressable
               onPress={onClose}
               style={({ pressed }) => [
@@ -372,6 +379,7 @@ const DetailsModal: React.FC<{
                 { borderColor: t.border },
                 pressed && { opacity: 0.8 },
               ]}
+              accessibilityLabel="Close"
             >
               <Text style={[styles.secondaryBtnText, { color: t.text }]}>
                 Close
@@ -620,5 +628,13 @@ const styles = StyleSheet.create({
   },
   secondaryBtnText: {
     fontWeight: "800",
+  },
+  chipRow: {
+    paddingVertical: 8,
+    minHeight: 44, // ensures full visibility of chips
+  },
+  chipText: {
+    fontWeight: "600",
+    fontSize: 13,
   },
 });
