@@ -18,6 +18,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
+import { Link, useRouter } from "expo-router";
 
 // ---------- Types ----------
 type Track = {
@@ -105,18 +106,41 @@ const secondsToMMSS = (sec: number) => {
 };
 
 // ---------- Components ----------
-const Header: React.FC<{ onProfile?: () => void }> = ({ onProfile }) => {
+const Header: React.FC = () => {
   const t = useTheme();
+  const router = useRouter();
+
   return (
     <View style={[styles.header, { borderColor: t.border }]}>
       <Text style={[styles.logo, { color: t.text }]}>sonar</Text>
-      <Pressable
-        onPress={onProfile}
-        style={({ pressed }) => [styles.iconBtn, pressed && { opacity: 0.6 }]}
-        accessibilityLabel="Profile"
-      >
-        <Ionicons name="person-circle-outline" size={26} color={t.text} />
-      </Pressable>
+
+      <View style={styles.authRow}>
+        <Pressable
+          onPress={() => router.push("/(auth)/login")}
+          style={({ pressed }) => [
+            styles.authBtnSecondary,
+            { borderColor: t.border },
+            pressed && { opacity: 0.7 },
+          ]}
+          accessibilityLabel="Go to Login"
+        >
+          <Text style={[styles.authBtnTextSecondary, { color: t.text }]}>
+            Log in
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => router.push("/(auth)/signup")}
+          style={({ pressed }) => [
+            styles.authBtnPrimary,
+            { backgroundColor: t.tint },
+            pressed && { opacity: 0.9 },
+          ]}
+          accessibilityLabel="Go to Sign up"
+        >
+          <Text style={styles.authBtnTextPrimary}>Sign up</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -632,9 +656,33 @@ const styles = StyleSheet.create({
   chipRow: {
     paddingVertical: 8,
     minHeight: 44, // ensures full visibility of chips
+    maxHeight: 44,
   },
   chipText: {
     fontWeight: "600",
     fontSize: 13,
+  },
+  authRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  authBtnPrimary: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  authBtnSecondary: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  authBtnTextPrimary: {
+    color: "#fff",
+    fontWeight: "800",
+  },
+  authBtnTextSecondary: {
+    fontWeight: "800",
   },
 });

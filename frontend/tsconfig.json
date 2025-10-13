@@ -7,12 +7,20 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-
-    "baseUrl": ".", // 👈 front-end root
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"] // "@/components/Button" -> "components/Button"
+      "@/*": [
+        "*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
