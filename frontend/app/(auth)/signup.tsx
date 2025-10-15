@@ -1,4 +1,4 @@
-import { useColorScheme, View, Text, TextInput } from "react-native";
+import { useColorScheme, View, Text, TextInput, Pressable } from "react-native";
 import { Colors, Fonts } from "@/constants/theme"; // your file
 
 export default function Signup() {
@@ -40,23 +40,8 @@ export default function Signup() {
       <View
         style={{
           backgroundColor: c.background,
-          borderRadius: 24,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e7eb",
         }}
       >
-        <Text
-          style={{
-            color: c.text,
-            fontSize: 14,
-            fontWeight: "600",
-            marginBottom: 8,
-            fontFamily: Fonts.sans,
-          }}
-        >
-          Email
-        </Text>
         <TextInput
           placeholder="Enter your email"
           placeholderTextColor="#9CA3AF"
@@ -68,8 +53,50 @@ export default function Signup() {
             paddingVertical: 16,
             paddingHorizontal: 16,
             fontFamily: Fonts.sans,
+            marginBottom: 15,
           }}
         />
+        <TextInput
+          placeholder="Create a password"
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry={true}
+          style={{
+            color: c.text,
+            borderWidth: 1,
+            borderColor: "#d1d5db",
+            borderRadius: 12,
+            paddingVertical: 16,
+            paddingHorizontal: 16,
+            fontFamily: Fonts.sans,
+            marginBottom: 15,
+          }}
+        />
+        <TextInput
+          placeholder="Confirm password"
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry={true}
+          style={{
+            color: c.text,
+            borderWidth: 1,
+            borderColor: "#d1d5db",
+            borderRadius: 12,
+            paddingVertical: 16,
+            paddingHorizontal: 16,
+            fontFamily: Fonts.sans,
+            marginBottom: 15,
+          }}
+        />
+
+        <Pressable
+          style={{
+            backgroundColor: c.icon,
+            borderRadius: 12,
+            paddingVertical: 16,
+            paddingHorizontal: 16,
+          }}
+        >
+          <Text style={{ textAlign: "center" }}>Sign Up</Text>
+        </Pressable>
       </View>
     </View>
   );

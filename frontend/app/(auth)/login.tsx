@@ -1,87 +1,88 @@
-import React, { useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-  Text,
-} from "react-native";
-import { useRouter, Link } from "expo-router";
-import { login, me } from "@/lib/api";
-import { saveTokens } from "@/lib/secure";
-import { Field, Input, PrimaryButton, IconButton } from "@/components/ui";
+import { useColorScheme, View, Text, TextInput, Pressable } from "react-native";
+import { Colors, Fonts } from "@/constants/theme"; // your file
 
-export default function LoginScreen() {
-  const r = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const onSubmit = async () => {
-    if (!email || !password)
-      return Alert.alert("Missing fields", "Email and password are required.");
-    try {
-      setLoading(true);
-      const tokens = await login(email.trim(), password);
-      await saveTokens(tokens.access, tokens.refresh);
-      await me(tokens.access); // optional check
-      r.replace("/");
-    } catch (e: any) {
-      Alert.alert("Login failed", e.message || "Check your credentials.");
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function Login() {
+  const scheme = useColorScheme(); // "light" | "dark" | null
+  const c = Colors[scheme ?? "light"];
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1 justify-center px-5"
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: c.background,
+        paddingHorizontal: 24,
+        justifyContent: "center",
+      }}
     >
-      <Text className="text-3xl font-extrabold mb-2">Welcome back</Text>
+      <Text
+        style={{
+          color: c.text,
+          fontSize: 32,
+          fontWeight: "700",
+          marginBottom: 8,
+          fontFamily: Fonts.sans,
+        }}
+      >
+        Welcome Back
+      </Text>
 
-      <View className="gap-4">
-        <Field label="Email">
-          <Input
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="you@example.com"
-          />
-        </Field>
+      <Text
+        style={{
+          color: c.icon,
+          fontSize: 16,
+          marginBottom: 24,
+          fontFamily: Fonts.sans,
+        }}
+      >
+        Enter your details to log in
+      </Text>
 
-        <Field label="Password">
-          <View className="relative">
-            <Input
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPwd}
-              placeholder="Your password"
-            />
-            <IconButton
-              onPress={() => setShowPwd((v) => !v)}
-              name={showPwd ? "eye-off-outline" : "eye-outline"}
-            />
-          </View>
-        </Field>
+      <View
+        style={{
+          backgroundColor: c.background,
+        }}
+      >
+        <TextInput
+          placeholder="Enter your email"
+          placeholderTextColor="#9CA3AF"
+          style={{
+            color: c.text,
+            borderWidth: 1,
+            borderColor: "#d1d5db",
+            borderRadius: 12,
+            paddingVertical: 16,
+            paddingHorizontal: 16,
+            fontFamily: Fonts.sans,
+            marginBottom: 15,
+          }}
+        />
+        <TextInput
+          placeholder="Enter your password"
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry={true}
+          style={{
+            color: c.text,
+            borderWidth: 1,
+            borderColor: "#d1d5db",
+            borderRadius: 12,
+            paddingVertical: 16,
+            paddingHorizontal: 16,
+            fontFamily: Fonts.sans,
+            marginBottom: 15,
+          }}
+        />
 
-        <PrimaryButton
-          onPress={onSubmit}
-          disabled={loading}
-          className={loading ? "opacity-80" : ""}
+        <Pressable
+          style={{
+            backgroundColor: c.icon,
+            borderRadius: 12,
+            paddingVertical: 16,
+            paddingHorizontal: 16,
+          }}
         >
-          {loading ? "Signing in…" : "Log in"}
-        </PrimaryButton>
-
-        <Text className="text-center text-subtext font-semibold mt-2">
-          New here?{" "}
-          <Link href="/(auth)/signup" className="text-tint font-extrabold">
-            Create an account
-          </Link>
-        </Text>
+          <Text style={{ textAlign: "center" }}>Log In</Text>
+        </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

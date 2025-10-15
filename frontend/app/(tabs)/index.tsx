@@ -657,6 +657,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     minHeight: 44, // ensures full visibility of chips
     maxHeight: 44,
+    marginBottom: 10,
   },
   chipText: {
     fontWeight: "600",
