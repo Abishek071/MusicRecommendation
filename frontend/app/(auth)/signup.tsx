@@ -7,6 +7,7 @@ export default function Signup() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const scheme = useColorScheme(); // "light" | "dark" | null
   const c = Colors[scheme ?? "light"];
@@ -17,6 +18,11 @@ export default function Signup() {
     try {
       if (email == "" && password == "" && name == "") {
         alert("Please fill the form completely");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match");
         return;
       }
       const res = await fetch(`${api}/api/auth/register/`, {
@@ -118,6 +124,7 @@ export default function Signup() {
         <TextInput
           placeholder="Confirm password"
           placeholderTextColor="#9CA3AF"
+          onChangeText={(text) => setConfirmPassword(text)}
           secureTextEntry={true}
           style={{
             color: c.text,

@@ -1,5 +1,5 @@
 // lib/api.ts
-export const API_BASE = "http://192.168.X.X:8000"; // 👈 Replace with your LAN IP (same network as your phone)
+export const API_BASE = "http://127.0.0.1:8000"; // 👈 Replace with your LAN IP (same network as your phone)
 
 type TokenPair = { access: string; refresh: string };
 

@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "accounts",
     "core",  # your app(s)
+    "api"
 ]
 
 
@@ -66,8 +67,10 @@ AUTH_USER_MODEL = "accounts.User"
 # --- REST / JWT
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
     ),
 }
 
@@ -83,3 +86,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Static
 STATIC_URL = "static/"
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

@@ -3,7 +3,7 @@
 // packages used: react-native, @expo/vector-icons (already included with Expo)
 
 import { Ionicons } from "@expo/vector-icons";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import {
   Animated,
   FlatList,
@@ -19,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
+import { Audio } from "expo-av";
 
 // ---------- Types ----------
 type Track = {
@@ -26,6 +27,7 @@ type Track = {
   title: string;
   artist: string;
   cover: string; // url (placeholder for now)
+  audio?: string;
   mood: "chill" | "focus" | "energy" | "sleep" | "happy" | "melancholy";
   durationSec: number;
 };
@@ -424,9 +426,41 @@ const HomeScreen: React.FC = () => {
   const [current, setCurrent] = useState<Track | null>(null);
   const [playing, setPlaying] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [loadingTracks, setLoadingTracks] = useState(false);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    const fetchTracks = async () => {
+      try {
+        setLoadingTracks(true);
+        const res = await fetch("http://127.0.0.1:8000/api/tracks/");
+        if (!res.ok) throw new Error("Failed to fetch tracks");
+        const data = await res.json();
+
+        const mapped = data.map((item: any, i: number) => ({
+          id: item.id.toString(),
+          title: item.title,
+          mood: item.mood,
+          cover: item.cover,
+          // fallback fields
+          artist: ["Luna Park", "Kite Club", "Velvet Rows"][i % 3],
+          durationSec: 180 + i * 5,
+        }));
+
+        setTracks(mapped);
+      } catch (e) {
+        console.error("Track fetch failed:", e);
+      } finally {
+        setLoadingTracks(false);
+      }
+    };
+
+    fetchTracks();
+  }, []);
 
   const filtered = useMemo(() => {
-    return sampleTracks.filter((tr) => {
+    return tracks.filter((tr) => {
       const matchMood = mood === "all" || tr.mood === mood;
       const q = query.trim().toLowerCase();
       const matchQuery =
@@ -436,16 +470,60 @@ const HomeScreen: React.FC = () => {
         tr.mood.toLowerCase().includes(q);
       return matchMood && matchQuery;
     });
-  }, [query, mood]);
+  }, [query, mood, tracks]);
 
   const onSelectTrack = (tr: Track) => {
     setCurrent(tr);
     setDetailsOpen(true);
   };
 
-  const onPlay = () => {
-    setPlaying(true);
-    setDetailsOpen(false);
+  const onPlay = async () => {
+    if (!current) return;
+
+    try {
+      if (sound) {
+        await sound.unloadAsync(); // stop previous track
+      }
+
+      if (!current.audio) {
+        console.warn("No audio URL for current track");
+        return;
+      }
+
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: current.audio },
+        { shouldPlay: true }
+      );
+
+      setSound(newSound);
+      setPlaying(true);
+      setDetailsOpen(false);
+
+      // Optional: handle end of playback
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (!status.isLoaded) return;
+        if (status.didJustFinish) {
+          setPlaying(false);
+        }
+      });
+    } catch (e) {
+      console.error("Audio play error:", e);
+    }
+  };
+
+  const onToggle = async () => {
+    if (!sound) return;
+
+    const status = await sound.getStatusAsync();
+    if (status.isLoaded) {
+      if (status.isPlaying) {
+        await sound.pauseAsync();
+        setPlaying(false);
+      } else {
+        await sound.playAsync();
+        setPlaying(true);
+      }
+    }
   };
 
   return (
@@ -464,21 +542,25 @@ const HomeScreen: React.FC = () => {
       <View style={{ height: 8 }} />
       <MoodChips selected={mood} onSelect={setMood} />
 
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TrackCard track={item} onPress={onSelectTrack} onLike={() => {}} />
-        )}
-        contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        showsVerticalScrollIndicator={false}
-      />
+      {loadingTracks ? (
+        <Text style={{ padding: 16, color: t.subtext }}>Loading tracks...</Text>
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TrackCard track={item} onPress={onSelectTrack} onLike={() => {}} />
+          )}
+          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
       <MiniPlayer
         track={current}
         isPlaying={playing}
-        onToggle={() => setPlaying((p) => !p)}
+        onToggle={onToggle}
         onExpand={() => setDetailsOpen(true)}
       />
 
