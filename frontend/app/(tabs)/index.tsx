@@ -443,7 +443,7 @@ const HomeScreen: React.FC = () => {
           title: item.title,
           mood: item.mood,
           cover: item.cover,
-          // fallback fields
+          audio: item.audio,
           artist: ["Luna Park", "Kite Club", "Velvet Rows"][i % 3],
           durationSec: 180 + i * 5,
         }));
